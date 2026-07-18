@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="自我成长">
+<meta name="theme-color" content="#FFF8F0">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icon.png">
+<link rel="icon" type="image/png" href="icon.png">
+<title>自我成长 · 每日打卡</title>
+<style>
+:root {
+  --bg:#FFF8F0; --card:#FFF; --text:#3D3D4A; --sub:#8C8C98; --line:#EDE8E2;
+  --love:#E07A5F; --love-light:#FFF0EB; --love-soft:#FDF0EA;
+  --conf:#8663AF; --conf-light:#F3EDF8; --conf-soft:#F6F2FA;
+  --done:#81B29A; --done-bg:#EDF6F1; --gold:#D4A545;
+  --shadow:0 2px 12px rgba(0,0,0,0.04); --radius:18px;
+  --font:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif;
+  --sat:env(safe-area-inset-top,0px); --sab:env(safe-area-inset-bottom,0px);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{height:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;min-height:100dvh;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;user-select:none;overflow-x:hidden}
+
+/* Top */
+.top-area{position:sticky;top:0;z-index:20;background:var(--bg);padding-top:var(--sat)}
+header{padding:10px 24px 0;display:flex;align-items:center;justify-content:space-between}
+header .h-left{text-align:left}
+header .date{font-size:13px;color:var(--sub);letter-spacing:.5px;margin-bottom:2px}
+header h1{font-size:24px;font-weight:700}
+header .h-right{display:flex;gap:8px}
+.icon-btn{width:40px;height:40px;border-radius:50%;border:none;background:var(--card);font-size:18px;cursor:pointer;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;position:relative;transition:all .2s}
+.icon-btn:active{transform:scale(.9)}
+.icon-btn .badge{position:absolute;top:-2px;right:-2px;width:10px;height:10px;border-radius:50%;background:var(--love);opacity:0;transition:opacity .3s}
+.icon-btn .badge.show{opacity:1}
+.streak-row{display:flex;justify-content:center;margin-top:8px}
+.streak-badge{display:inline-flex;align-items:center;gap:6px;background:var(--card);border-radius:20px;padding:6px 16px;font-size:13px;color:var(--sub);box-shadow:var(--shadow)}
+.streak-badge strong{color:var(--love)}
+.tabs{display:flex;margin:12px 24px 0;background:var(--card);border-radius:16px;padding:4px;box-shadow:var(--shadow)}
+.tab{flex:1;text-align:center;padding:12px 0;border-radius:13px;font-size:15px;font-weight:600;cursor:pointer;transition:all .25s;color:var(--sub);border:none;background:none;font-family:var(--font)}
+.tab.active.love-tab{background:var(--love-soft);color:var(--love)}
+.tab.active.conf-tab{background:var(--conf-soft);color:var(--conf)}
+
+/* Main */
+main{padding:10px 24px 140px}
+.section,.hist-section,.zhuyi-section{display:none}
+.section.active,.hist-section.active,.zhuyi-section.active{display:block}
+.sec-header{display:flex;align-items:center;justify-content:space-between;margin:8px 0 10px}
+.sec-header .title{font-size:15px;font-weight:700}
+.pill{font-size:12px;font-weight:600;padding:4px 12px;border-radius:12px}
+.pill.love{background:var(--love-light);color:var(--love)}
+.pill.conf{background:var(--conf-light);color:var(--conf)}
+.sub-title{font-size:13px;font-weight:600;color:var(--sub);margin:18px 0 10px 4px;letter-spacing:.5px}
+
+/* Cards */
+.card{background:var(--card);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow);display:flex;align-items:flex-start;gap:12px;transition:all .3s;border:1.5px solid transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.card:active{transform:scale(.985)}
+.card.done{border-color:var(--done);background:var(--done-bg)}
+.card.done .card-body .card-title,.card.done .card-body .card-desc{opacity:.5}
+.check{width:28px;height:28px;min-width:28px;border-radius:50%;border:2px solid #DDD;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .3s;background:white}
+.check.done{background:var(--done);border-color:var(--done)}
+.check svg{opacity:0;transform:scale(.5);transition:all .3s}
+.check.done svg{opacity:1;transform:scale(1)}
+.card-body{flex:1;min-width:0}
+.card-tag{display:inline-block;font-size:11px;font-weight:600;padding:3px 10px;border-radius:10px;margin-bottom:5px}
+.card-tag.love{background:var(--love-light);color:var(--love)}
+.card-tag.conf{background:var(--conf-light);color:var(--conf)}
+.card-title{font-size:15px;font-weight:600;margin-bottom:3px}
+.card-desc{font-size:13px;color:var(--sub);line-height:1.5}
+.card-actions{display:flex;gap:6px;margin-top:6px}
+.journal-btn{font-size:12px;padding:5px 12px;border-radius:10px;border:1px solid var(--line);background:white;color:var(--sub);cursor:pointer;font-family:var(--font);display:inline-flex;align-items:center;gap:4px;transition:all .2s}
+.journal-btn:active{background:#f9f9f9}
+.journal-btn.has-note{border-color:var(--gold);color:var(--gold);background:#FFFBF0}
+.note-preview{font-size:12px;color:var(--gold);margin-top:4px;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+
+/* Info card */
+.info-card{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:10px;box-shadow:var(--shadow);border-left:3px solid var(--gold)}
+.info-card .info-title{font-size:15px;font-weight:600;margin-bottom:6px}
+.info-card .info-text{font-size:13px;color:var(--sub);line-height:1.7}
+.week-item{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:13px;color:var(--text)}
+.week-tag{font-size:11px;font-weight:600;padding:3px 10px;border-radius:10px;white-space:nowrap;min-width:54px;text-align:center}
+.week-tag.conf{background:var(--conf-light);color:var(--conf)}
+
+/* Notes modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:50;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.modal-overlay.open{opacity:1;pointer-events:auto}
+.modal-sheet{background:var(--card);border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:70vh;display:flex;flex-direction:column;padding-bottom:var(--sab);transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1)}
+.modal-overlay.open .modal-sheet{transform:translateY(0)}
+.modal-handle{width:36px;height:5px;border-radius:3px;background:#DDD;margin:12px auto 8px}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:8px 20px 12px;border-bottom:1px solid var(--line)}
+.modal-header .modal-title{font-size:17px;font-weight:700}
+.modal-header button{font-size:15px;color:var(--love);border:none;background:none;font-weight:600;cursor:pointer;font-family:var(--font)}
+.modal-body{padding:16px 20px;overflow-y:auto;flex:1}
+.modal-body textarea{width:100%;min-height:140px;border:1.5px solid var(--line);border-radius:14px;padding:14px;font-size:15px;font-family:var(--font);color:var(--text);resize:vertical;outline:none;line-height:1.6;background:#FAFAFA}
+.modal-body textarea:focus{border-color:var(--love);background:white}
+.modal-body .hint{font-size:12px;color:var(--sub);margin-top:8px}
+
+/* ═══ Zhuyi Section ═══ */
+.zy-toggle{display:flex;background:var(--card);border-radius:14px;padding:4px;margin:12px 0;box-shadow:var(--shadow)}
+.zy-toggle button{flex:1;padding:10px 0;border-radius:12px;font-size:14px;font-weight:600;border:none;background:none;color:var(--sub);cursor:pointer;font-family:var(--font);transition:all .2s}
+.zy-toggle button.active{background:var(--love-soft);color:var(--love)}
+
+/* Letter mode */
+.letter-card{background:var(--card);border-radius:var(--radius);padding:28px 22px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.letter-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:linear-gradient(180deg,var(--love),var(--gold),var(--conf))}
+.letter-card .letter-from{font-size:14px;color:var(--love);font-weight:600;margin-bottom:16px}
+.letter-card .letter-greeting{font-size:16px;font-weight:600;margin-bottom:14px;color:var(--text)}
+.letter-card .letter-body{font-size:14px;line-height:2;color:var(--text)}
+.letter-card .letter-body p{margin-bottom:14px}
+.letter-card .letter-quote{text-align:center;font-size:18px;font-weight:700;color:var(--love);margin:20px 0;line-height:1.8}
+.letter-card .letter-quote .en{font-size:12px;color:var(--sub);font-weight:400;display:block;margin-top:4px}
+.letter-card .letter-sign{text-align:right;color:var(--sub);font-size:13px;margin-top:18px;font-style:italic}
+
+/* Chat mode */
+.mood-bar{display:flex;gap:6px;overflow-x:auto;padding:4px 0 12px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.mood-bar::-webkit-scrollbar{display:none}
+.mood-chip{flex-shrink:0;padding:8px 15px;border-radius:20px;font-size:13px;font-weight:600;border:1.5px solid var(--line);background:var(--card);color:var(--sub);cursor:pointer;font-family:var(--font);white-space:nowrap;transition:all .2s}
+.mood-chip:active,.mood-chip.active{background:var(--love-soft);border-color:var(--love);color:var(--love)}
+.chat-area{display:flex;flex-direction:column;gap:12px}
+.chat-bubble{max-width:88%;padding:14px 18px;border-radius:20px;font-size:14px;line-height:1.8;opacity:0;transform:translateY(10px);animation:bubbleIn .5s ease forwards}
+.chat-bubble:nth-child(1){animation-delay:0s}
+.chat-bubble:nth-child(2){animation-delay:.15s}
+.chat-bubble:nth-child(3){animation-delay:.3s}
+.chat-bubble:nth-child(4){animation-delay:.45s}
+.chat-bubble:nth-child(5){animation-delay:.6s}
+.chat-bubble:nth-child(6){animation-delay:.75s}
+.chat-bubble:nth-child(7){animation-delay:.9s}
+.chat-bubble.from-zy{background:var(--card);align-self:flex-start;border-bottom-left-radius:6px;box-shadow:var(--shadow);margin-right:auto}
+.chat-bubble.from-zy::before{content:'朱一老师';display:block;font-size:11px;color:var(--love);font-weight:600;margin-bottom:4px}
+@keyframes bubbleIn{to{opacity:1;transform:translateY(0)}}
+
+/* History */
+.hist-header{text-align:center;padding:16px 0 8px}
+.hist-header h2{font-size:22px;font-weight:700;margin-bottom:4px}
+.hist-header p{font-size:13px;color:var(--sub)}
+.hist-stats{display:flex;gap:10px;margin:12px 0 20px}
+.stat-card{flex:1;background:var(--card);border-radius:var(--radius);padding:16px;text-align:center;box-shadow:var(--shadow)}
+.stat-card .stat-num{font-size:28px;font-weight:700;color:var(--love)}
+.stat-card .stat-num.conf-num{color:var(--conf)}
+.stat-card .stat-label{font-size:12px;color:var(--sub);margin-top:4px}
+.calendar-label{font-size:13px;font-weight:600;color:var(--sub);margin-bottom:10px}
+.calendar-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.day-dot{width:30px;height:30px;border-radius:8px;background:var(--line);display:flex;align-items:center;justify-content:center;font-size:10px;color:white;font-weight:700;cursor:pointer;transition:all .2s}
+.day-dot.full{background:var(--done)}.day-dot.partial{background:var(--gold)}.day-dot.none{background:#EEE}.day-dot.today{box-shadow:0 0 0 2px var(--love)}
+.day-detail{background:var(--card);border-radius:var(--radius);padding:16px;margin-top:12px;box-shadow:var(--shadow);display:none}
+.day-detail.show{display:block}
+.day-detail .dd-date{font-size:15px;font-weight:700;margin-bottom:10px}
+.day-detail .dd-item{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13px}
+.day-detail .dd-dot{width:10px;height:10px;border-radius:50%}
+.day-detail .dd-dot.done-d{background:var(--done)}.day-detail .dd-dot.miss{background:#DDD}
+.day-detail .dd-note{font-size:12px;color:var(--gold);margin:4px 0 4px 18px;line-height:1.5}
+
+/* Bottom */
+.bottom-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:10px 24px calc(10px + var(--sab));display:flex;align-items:center;justify-content:space-between;box-shadow:0 -2px 12px rgba(0,0,0,.03);z-index:30}
+.bottom-bar .summary{font-size:13px;color:var(--sub)}
+.bottom-bar .summary strong{color:var(--text);font-size:15px}
+.bottom-bar button{font-size:12px;color:var(--sub);background:none;border:1px solid var(--line);border-radius:10px;padding:6px 14px;cursor:pointer;font-family:var(--font);-webkit-tap-highlight-color:transparent}
+.bottom-bar button:active{background:#f5f5f5}
+
+/* Toast */
+.toast{position:fixed;top:calc(60px + var(--sat));left:50%;transform:translateX(-50%) translateY(-20px);background:var(--done);color:white;padding:12px 24px;border-radius:24px;font-size:14px;font-weight:600;opacity:0;transition:all .4s;z-index:40;pointer-events:none;box-shadow:0 4px 16px rgba(129,178,154,.4)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Back button */
+.back-row{padding:4px 0}
+.back-btn{font-size:14px;color:var(--love);background:none;border:none;cursor:pointer;font-family:var(--font);font-weight:600;display:flex;align-items:center;gap:4px}
+
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+.check.pop{animation:pop .35s}
+
+@media(min-width:500px){body{max-width:480px;margin:0 auto}.bottom-bar{max-width:480px;left:50%;transform:translateX(-50%)}}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- Top -->
+<div class="top-area">
+  <header>
+    <div class="h-left"><div class="date" id="dateDisplay"></div><h1>✨ 自我成长</h1></div>
+    <div class="h-right">
+      <button class="icon-btn" onclick="showZhuyi()" title="朱一老师说"><span style="font-size:20px">💌</span><span class="badge" id="zyBadge"></span></button>
+      <button class="icon-btn" onclick="showHistory()" title="历史记录">📅</button>
+    </div>
+  </header>
+  <div class="streak-row"><div class="streak-badge"><span>🔥</span> 已连续打卡 <strong id="streakCount">0</strong> 天</div></div>
+  <div class="tabs" id="mainTabs">
+    <button class="tab active love-tab" onclick="switchTab('love')">💛 亲密关系</button>
+    <button class="tab" onclick="switchTab('conf')">💜 自信心</button>
+  </div>
+</div>
+
+<main>
+  <!-- Love -->
+  <div class="section active" id="sec-love">
+    <div class="sec-header"><span class="title">每日必做三件事</span><span class="pill love" id="loveProgress">0/3</span></div>
+    <div id="loveDailies"></div>
+    <div class="sub-title">💬 沟通黄金公式</div>
+    <div class="info-card"><div class="info-title">当你做 ___ 时，我感觉 ___，我需要 ___</div><div class="info-text">→ 说事实，不说评价<br>→ 说感受，不说指责<br>→ 说需求，不给压力</div></div>
+    <div class="sub-title">🔑 三条准则</div>
+    <div class="info-card"><div class="info-text">1. 只选"情感上可得"的人 — 单身、愿公开、能回应<br>2. 慢慢来，让时间检验 — 前3次约会只聊当下<br>3. 分散情感需求 — 培养≥5个可倾诉的人</div></div>
+  </div>
+
+  <!-- Conf -->
+  <div class="section" id="sec-conf">
+    <div class="sec-header"><span class="title">🌅 晨间启动</span><span class="pill conf" id="confMorningProgress">0/2</span></div><div id="confMorning"></div>
+    <div class="sec-header"><span class="title">☀ 日间练习</span><span class="pill conf" id="confDayProgress">0/3</span></div><div id="confDay"></div>
+    <div class="sec-header"><span class="title">🌙 晚间复盘</span><span class="pill conf" id="confEveProgress">0/2</span></div><div id="confEve"></div>
+    <div class="sub-title">🔥 每周挑战（循序渐进）</div><div class="info-card" id="weeklyChallenges"></div>
+    <div class="sub-title">💡 三个思维转换</div>
+    <div class="info-card"><div class="info-text">⚡ <b>比较是自信的小偷</b> — 唯一比较对象是昨天的自己<br><br>🎁 <b>价值不由外在定义</b> — 真诚、坚韧、觉察力才是<br><br>🌱 <b>不完美是入场券</b> — 先行动，自信会自己长出来</div></div>
+  </div>
+
+  <!-- History -->
+  <div class="hist-section" id="sec-history">
+    <div class="back-row"><button class="back-btn" onclick="backToMain()">← 返回</button></div>
+    <div class="hist-header"><h2>📅 打卡记录</h2><p>过去 35 天的足迹</p></div>
+    <div class="hist-stats"><div class="stat-card"><div class="stat-num" id="statStreak">0</div><div class="stat-label">🔥 最长连续</div></div><div class="stat-card"><div class="stat-num conf-num" id="statRate">0%</div><div class="stat-label">📊 总完成率</div></div><div class="stat-card"><div class="stat-num" id="statDays">0</div><div class="stat-label">📆 打卡天数</div></div></div>
+    <div class="calendar-label">点击圆点查看详情</div>
+    <div class="calendar-grid" id="calGrid"></div>
+    <div class="day-detail" id="dayDetail"></div>
+  </div>
+
+  <!-- ═══ Zhuyi ═══ -->
+  <div class="zhuyi-section" id="sec-zhuyi">
+    <div class="back-row"><button class="back-btn" onclick="backToMain()">← 返回</button></div>
+    <div class="hist-header"><h2>💌 朱一老师说</h2><p>那些在泄气时可以反复看的话</p></div>
+    <div class="zy-toggle">
+      <button class="active" onclick="zyMode('letter')">📜 书信</button>
+      <button onclick="zyMode('chat')">💬 对话</button>
+    </div>
+    <div id="zyLetter"></div>
+    <div id="zyChat" style="display:none"></div>
+  </div>
+</main>
+
+<!-- Bottom -->
+<div class="bottom-bar" id="bottomBar">
+  <div class="summary">今日完成 <strong id="totalDone">0</strong> / <span id="totalItems">10</span></div>
+  <button onclick="resetToday()">重新开始</button>
+</div>
+
+<!-- Notes modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-header"><span class="modal-title" id="modalTitle">记录</span><button onclick="saveNote()">保存</button></div>
+    <div class="modal-body"><textarea id="noteText" placeholder="写下你想记录的……"></textarea><div class="hint" id="noteHint"></div></div>
+  </div>
+</div>
+
+<script>
+// ═══════════ DATA ═══════════
+const loveDailies=[{id:'l1',tag:'晨间·30秒',title:'镜前自我认可',desc:'看着镜子，认真说一句肯定自己的话',journal:false},{id:'l2',tag:'焦虑时·5分钟',title:'STOP 呼吸法',desc:'Stop停下→Take breath深呼吸→Observe观察→Proceed行动。至少等2小时再做沟通决定',journal:false},{id:'l3',tag:'睡前·10分钟',title:'依恋日记',desc:'记录今天的触发事件、情绪反应与事实',journal:true,jHint:'① 今天触发我焦虑的事件是什么？\n② 我的身体和情绪反应是怎样的？\n③ 事后回看，事实是什么（而不是我的想象）？'}];
+const confMorning=[{id:'c1',tag:'起床后',title:'高能量姿势 2分钟',desc:'双手叉腰、挺胸抬头，深呼吸，让身体从"蜷缩"切换到"打开"',journal:false},{id:'c2',tag:'对镜子',title:'说出自我确认语',desc:'"我有独特的价值，不需要和任何人比较"',journal:false}];
+const confDay=[{id:'c3',tag:'随时',title:'改写内心批评声',desc:'当"我不够好"冒出来时，问自己：好朋友这样想，我会怎么对TA说？',journal:false},{id:'c4',tag:'工作中',title:'主动表达一次观点',desc:'在会议上说出一个想法，不在乎完美，先习惯"被听见"',journal:false},{id:'c5',tag:'今天',title:'对不想做的事说"不"',desc:'不说理由、不解释、不道歉。边界感是自信的练习场',journal:false}];
+const confEve=[{id:'c6',tag:'睡前·5分钟',title:'三件小成就记录',desc:'写下今天做到的3件事',journal:true,jHint:'写下今天你做到的3件事，不管多么微小：\n1.\n2.\n3.'},{id:'c7',tag:'睡前·3分钟',title:'身体感恩练习',desc:'从脚趾到头扫描身体，对每个部位说谢谢你今天支撑了我',journal:false}];
+const weeklyChallenges=['第 1 周：一个人去不错的餐厅吃饭，不刷手机','第 2 周：穿一件想穿但不太敢穿的衣服出门','第 3 周：在公开场合（读书会/社群/朋友圈）发一次言','第 4 周：约一个欣赏但不太熟的人喝咖啡','持续：建立你的"成就证据库"'];
+const allItems=[...loveDailies,...confMorning,...confDay,...confEve];
+
+// Zhuyi letter
+const zyLetterHTML=`
+<div class="letter-card">
+  <div class="letter-from">💌 来自朱一老师</div>
+  <div class="letter-greeting">梦婷，想了想还是写几句话给你。</div>
+  <div class="letter-body">
+    <p>虽然不写也问题不大，毕竟你一路走到现在，走过许许多多困难，给自己想办法、做规划、安抚情绪或者勉励自己继续坚持，这都是你自己就可以做到且一直在做的，旁人所起的作用微乎其微。</p>
+    <p>现在遇到的这些问题，过几年看都是小事。时间本身有重量，它会带着我们往前走，走出这个麻烦，以及长出处理麻烦的能力。<b>改变一定会发生，成长是必然的。</b>必然的意思是，可能你都不觉着自己做了什么额外努力，莫名其妙地就越来越好了。反而，若是想让自己几年后与现在保持一样的境遇，那是十分费力也办不到的事情。</p>
+    <p>当然，过几年看是小事，现在确实在带来烦恼，现在做不到去轻视它太正常了。以及，至少我觉着，认真对待是更好的态度，就如你现在做的这样。认真对待工作层面的问题，并不因为业务的混乱就觉着自己也可以随便敷衍过去；也认真对待自己的情绪和念头，在当下的情景中产生真实的情绪，说明你充分投入了这一段经历。</p>
+    <p>有些人，或者很多人，是变得越来越麻木和漫不经心，那不是洒脱。当他们回首过去，是大片的空白与空虚，可能没什么痛苦，但也没什么快乐。如果我们认真投入当下，付出时间与精力，也必然受之影响情绪，有快乐，也有不快乐。可回头去看过去的自己，那个影像是扎实的，认真努力的自己存在于过去许多时刻，这个将成为信心的来源。</p>
+    <p>所以，认真的同时，要看到自己的努力。"看到"是很重要的能力，你有这个能力，只是视角经常向外，总是在看别人。稍微转个方向，也看看自己。</p>
+    <p>同时，虽然说不拿自己和别人比较，但这好难做到啊。比较可以，至少标准要统一嘛。看到别人加班是"啊啊啊他好敬业！"，到自己怎么就变成"我是不是能力不够效率不行才要加班"；看别人接需求是"他真负责"，怼需求是"业务方提的什么鬼需求怼的好"，拖延需求是"时间管理大师协调能力强"，到自己怎么就变成接需求是"因为没理清业务逻辑只能他们说啥都接"，拖延需求是"时间管理不行"，怼需求……嗯好像没见过你怼需求，真的可以试一试，不一样的体验！</p>
+    <p>对自己好点，像你温柔对待别人那样温柔点对自己。相信自己是重要的，自己的感受是需要被重视的，自己的努力是走到今天的核心因素——不是别人或者别的什么环境，<b>你最重要。</b>你自己，从过去走到了现在；这就是，你可以继续从现在走向未来的证据。</p>
+    <p>以前看过个小故事，大概是说一个人饥寒交迫，旅馆老板随手分了他一碗面条，这个人感激涕零觉着老板是全天下最好的人。老板说，你妈妈给你做了那么多碗面条呢，怎么没意识到？稍微换一下角色，在过去那么长的时间里，是你自己给自己做了很多碗"面条"，你曾经无数次拯救自己、激励自己、给自己带来能量。与你自己给自己做到的事相比，外界什么人什么环境都少太多了。<b>信心就来自于这里，过去的你可以，现在的你也可以。好好爱自己，你做到的事比你知道的更多。</b></p>
+    <div class="letter-quote">"你的未来如此耀眼，令我炫目。"<span class="en">"The future is so bright for you, it burns my eyes."</span></div>
+  </div>
+  <div class="letter-sign">—— 昆西·琼斯对乌比·戈德堡拍摄《紫色》时说的话<br>朱一老师送给你</div>
+</div>`;
+
+// Chat segments by mood
+const zySegments={
+  '全部':[
+    '梦婷，想了想还是写几句话给你。虽然不写也问题不大，毕竟你一路走到现在，走过许许多多困难，给自己想办法、做规划、安抚情绪或者勉励自己继续坚持，这都是你自己就可以做到且一直在做的，旁人所起的作用微乎其微。',
+    '现在遇到的这些问题，过几年看都是小事。时间本身有重量，它会带着我们往前走，走出这个麻烦，以及长出处理麻烦的能力。改变一定会发生，成长是必然的。',
+    '当然，过几年看是小事，现在确实在带来烦恼，现在做不到去轻视它太正常了。认真对待是更好的态度，就如你现在做的这样。',
+    '有些人变得越来越麻木和漫不经心，那不是洒脱。可回头去看过去的自己，那个影像是扎实的，认真努力的自己存在于过去许多时刻，这个将成为信心的来源。',
+    '所以，认真的同时，要看到自己的努力。"看到"是很重要的能力，你有这个能力，只是视角经常向外，总是在看别人。稍微转个方向，也看看自己。',
+    '比较可以，至少标准要统一嘛。对别人是"他好敬业"，对自己怎么就变成"我是不是能力不行"？对自己好点，像你温柔对待别人那样温柔点对自己。你最重要。',
+    '在过去那么长的时间里，是你自己给自己做了很多碗"面条"，你曾经无数次拯救自己、激励自己、给自己带来能量。信心就来自于这里，过去的你可以，现在的你也可以。',
+    '"你的未来如此耀眼，令我炫目。"'
+  ],
+  '自我怀疑':[
+    '梦婷，你一路走到现在，走过许许多多困难，给自己想办法、做规划、安抚情绪或者勉励自己继续坚持，这都是你自己就可以做到且一直在做的。',
+    '所以，认真的同时，要看到自己的努力。"看到"是很重要的能力，你有这个能力，只是视角经常向外，总是在看别人。稍微转个方向，也看看自己。',
+    '比较可以，至少标准要统一嘛。看到别人加班是"啊啊啊他好敬业！"，到自己怎么就变成"我是不是能力不够效率不行才要加班"？看别人接需求是"他真负责"，到自己怎么就变成"因为没理清业务逻辑只能他们说啥都接"？',
+    '怼需求……嗯好像没见过你怼需求，真的可以试一试，不一样的体验！',
+    '对自己好点，像你温柔对待别人那样温柔点对自己。相信自己是重要的，自己的感受是需要被重视的，自己的努力是走到今天的核心因素——不是别人或者别的什么环境，你最重要。',
+  ],
+  '焦虑挫败':[
+    '现在遇到的这些问题，过几年看都是小事。时间本身有重量，它会带着我们往前走，走出这个麻烦，以及长出处理麻烦的能力。',
+    '改变一定会发生，成长是必然的。必然的意思是，可能你都不觉着自己做了什么额外努力，莫名其妙地就越来越好了。反而，若是想让自己几年后与现在保持一样的境遇，那是十分费力也办不到的事情。',
+    '当然，过几年看是小事，现在确实在带来烦恼，现在做不到去轻视它太正常了。至少我觉着，认真对待是更好的态度，就如你现在做的这样。',
+    '认真对待工作层面的问题，并不因为业务的混乱就觉着自己也可以随便敷衍过去；也认真对待自己的情绪和念头，在当下的情景中产生真实的情绪，说明你充分投入了这一段经历。',
+  ],
+  '需要力量':[
+    '在过去那么长的时间里，是你自己给自己做了很多碗"面条"，你曾经无数次拯救自己、激励自己、给自己带来能量。',
+    '与你自己给自己做到的事相比，外界什么人什么环境都少太多了。信心就来自于这里，过去的你可以，现在的你也可以。好好爱自己，你做到的事比你知道的更多。',
+    '你自己，从过去走到了现在；这就是，你可以继续从现在走向未来的证据。',
+    '我送给你我最喜欢的一句话：昆西·琼斯对我拍摄《紫色》的时候对我说的——"你的未来如此耀眼，令我炫目。"',
+  ],
+  '迷茫':[
+    '有些人，或者很多人，是变得越来越麻木和漫不经心，那不是洒脱。当他们回首过去，是大片的空白与空虚，可能没什么痛苦，但也没什么快乐。',
+    '如果我们认真投入当下，付出时间与精力，也必然受之影响情绪，有快乐，也有不快乐。可回头去看过去的自己，那个影像是扎实的，认真努力的自己存在于过去许多时刻，这个将成为信心的来源。',
+    '所以，认真的同时，要看到自己的努力。"看到"是很重要的能力，你有这个能力，只是视角经常向外，总是在看别人。稍微转个方向，也看看自己。',
+    '时间本身有重量，它会带着我们往前走，走出这个麻烦，以及长出处理麻烦的能力。改变一定会发生，成长是必然的。',
+  ]
+};
+
+// ═══════════ STATE ═══════════
+const STORE='sg_data';
+let data=(()=>{try{const r=localStorage.getItem(STORE);if(r)return JSON.parse(r)}catch(e){}return {done:{},notes:{},streak:0}})();
+function tk(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+function save(){localStorage.setItem(STORE,JSON.stringify(data))}
+function isDone(id){const t=tk();return data.done[t]&&data.done[t].includes(id)}
+function getNote(id){const t=tk();return(data.notes[t]&&data.notes[t][id])||''}
+function setNote(id,txt){const t=tk();if(!data.notes[t])data.notes[t]={};data.notes[t][id]=txt;save()}
+
+function toggle(id){const t=tk();if(!data.done[t])data.done[t]=[];const i=data.done[t].indexOf(id);i>=0?data.done[t].splice(i,1):data.done[t].push(id);updateStreak();save();renderAll()}
+function updateStreak(){let c=0;const d=new Date();while(true){const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;if(data.done[k]&&data.done[k].length>=1){c++;d.setDate(d.getDate()-1)}else break}data.streak=c}
+
+// ═══════════ RENDER ═══════════
+function cardHTML(item,tagClass){const d=isDone(item.id);const note=getNote(item.id);const hasNote=!!note;let extra='';if(item.journal){extra=`<div class="card-actions"><button class="journal-btn${hasNote?' has-note':''}" onclick="event.stopPropagation();openNote('${item.id}')">${hasNote?'✏️ 已记录':'✏️ 写记录'}</button></div>`;if(hasNote)extra+=`<div class="note-preview">${note.replace(/\n/g,' · ')}</div>`}return `<div class="card${d?' done':''}" onclick="handleCheck('${item.id}')" id="card-${item.id}"><div class="check${d?' done':''}" id="check-${item.id}"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7.5L5.5 10.5L11.5 3.5" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="card-body"><span class="card-tag ${tagClass}">${item.tag}</span><div class="card-title">${item.title}</div><div class="card-desc">${item.desc}</div>${extra}</div></div>`}
+function handleCheck(id){toggle(id);const el=document.getElementById('check-'+id);if(el){el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop')}const doneN=allItems.filter(i=>isDone(i.id)).length;if(doneN===allItems.length)toast('🎉 太棒了！今天全部完成！');else if(doneN===5)toast('💪 已完成一半，继续加油！')}
+
+function renderAll(){
+  document.getElementById('loveDailies').innerHTML=loveDailies.map(i=>cardHTML(i,'love')).join('');
+  document.getElementById('loveProgress').textContent=`${loveDailies.filter(i=>isDone(i.id)).length}/3`;
+  document.getElementById('confMorning').innerHTML=confMorning.map(i=>cardHTML(i,'conf')).join('');
+  document.getElementById('confDay').innerHTML=confDay.map(i=>cardHTML(i,'conf')).join('');
+  document.getElementById('confEve').innerHTML=confEve.map(i=>cardHTML(i,'conf')).join('');
+  document.getElementById('confMorningProgress').textContent=`${confMorning.filter(i=>isDone(i.id)).length}/2`;
+  document.getElementById('confDayProgress').textContent=`${confDay.filter(i=>isDone(i.id)).length}/3`;
+  document.getElementById('confEveProgress').textContent=`${confEve.filter(i=>isDone(i.id)).length}/2`;
+  document.getElementById('weeklyChallenges').innerHTML=weeklyChallenges.map((c,i)=>`<div class="week-item"><span class="week-tag conf">第${i+1}周</span>${c.replace(/^第 \d 周：/,'')}</div>`).join('');
+  const doneN=allItems.filter(i=>isDone(i.id)).length;
+  document.getElementById('totalDone').textContent=doneN;
+  document.getElementById('totalItems').textContent=allItems.length;
+  document.getElementById('streakCount').textContent=data.streak||0;
+  const d=new Date();
+  document.getElementById('dateDisplay').textContent=`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 · 星期${['日','一','二','三','四','五','六'][d.getDay()]}`;
+  // Zhuyi badge: glow when today's progress < 50%
+  const badge=document.getElementById('zyBadge');
+  if(doneN<allItems.length/2&&doneN>0)badge.classList.add('show');else badge.classList.remove('show');
+  if(document.getElementById('sec-history').classList.contains('active'))renderHistory();
+}
+
+// ═══════════ NOTES ═══════════
+let curNoteId=null;
+function openNote(id){curNoteId=id;const item=allItems.find(i=>i.id===id);document.getElementById('modalTitle').textContent=item?item.title:'记录';document.getElementById('noteText').value=getNote(id);document.getElementById('noteHint').textContent=item&&item.jHint?item.jHint:'';document.getElementById('modalOverlay').classList.add('open');setTimeout(()=>document.getElementById('noteText').focus(),400)}
+function saveNote(){if(curNoteId){setNote(curNoteId,document.getElementById('noteText').value);closeModal();renderAll()}}
+function closeModal(e){if(e&&e.target!==document.getElementById('modalOverlay'))return;document.getElementById('modalOverlay').classList.remove('open');curNoteId=null}
+
+// ═══════════ NAVIGATION ═══════════
+function hideAll(){document.querySelectorAll('.section,.hist-section,.zhuyi-section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active','love-tab','conf-tab'));document.getElementById('bottomBar').style.display='flex';document.getElementById('mainTabs').style.display='flex'}
+function switchTab(t){hideAll();document.getElementById('mainTabs').style.display='flex';if(t==='love'){document.querySelector('#mainTabs .tab:nth-child(1)').classList.add('active','love-tab');document.getElementById('sec-love').classList.add('active')}else{document.querySelector('#mainTabs .tab:nth-child(2)').classList.add('active','conf-tab');document.getElementById('sec-conf').classList.add('active')}}
+function showHistory(){hideAll();document.getElementById('mainTabs').style.display='none';document.getElementById('sec-history').classList.add('active');renderHistory()}
+function showZhuyi(){hideAll();document.getElementById('mainTabs').style.display='none';document.getElementById('bottomBar').style.display='none';document.getElementById('sec-zhuyi').classList.add('active');
+  // Reset chat to default
+  document.getElementById('zyLetter').style.display='block';
+  document.getElementById('zyChat').style.display='none';
+  document.querySelectorAll('.zy-toggle button').forEach((b,i)=>b.classList.toggle('active',i===0));
+  if(!document.getElementById('zyLetter').innerHTML)document.getElementById('zyLetter').innerHTML=zyLetterHTML;
+}
+function backToMain(){hideAll();document.getElementById('mainTabs').style.display='flex';document.getElementById('bottomBar').style.display='flex';document.querySelector('#mainTabs .tab:nth-child(1)').classList.add('active','love-tab');document.getElementById('sec-love').classList.add('active');renderAll()}
+
+// ═══════════ ZHUYI MODES ═══════════
+function zyMode(mode){
+  document.querySelectorAll('.zy-toggle button').forEach((b,i)=>{b.classList.toggle('active',(mode==='letter'&&i===0)||(mode==='chat'&&i===1))});
+  if(mode==='letter'){
+    document.getElementById('zyLetter').style.display='block';
+    document.getElementById('zyChat').style.display='none';
+    if(!document.getElementById('zyLetter').innerHTML)document.getElementById('zyLetter').innerHTML=zyLetterHTML;
+  } else {
+    document.getElementById('zyLetter').style.display='none';
+    document.getElementById('zyChat').style.display='block';
+    renderChat('全部');
+  }
+}
+
+function renderChat(mood){
+  const bubbles=zySegments[mood]||zySegments['全部'];
+  let html='<div class="mood-bar">';
+  const moods=['全部','自我怀疑','焦虑挫败','迷茫','需要力量'];
+  for(const m of moods)html+=`<button class="mood-chip${mood===m?' active':''}" onclick="renderChat('${m}')">${mood===m&&m!=='全部'?'💬 ':''}${m}</button>`;
+  html+='</div><div class="chat-area" id="chatArea">';
+  for(let i=0;i<bubbles.length;i++){
+    // Reset animation by using a fresh key
+    html+=`<div class="chat-bubble from-zy" style="animation:none" id="cb${i}">${bubbles[i]}</div>`;
+  }
+  html+='</div>';
+  document.getElementById('zyChat').innerHTML=html;
+  // Staggered animation
+  setTimeout(()=>{
+    for(let i=0;i<bubbles.length;i++){const el=document.getElementById('cb'+i);if(el)el.style.animation=`bubbleIn .5s ease forwards ${i*.15}s`}
+  },50);
+}
+
+// ═══════════ HISTORY ═══════════
+function renderHistory(){
+  const days=[];const d=new Date();
+  for(let i=0;i<35;i++){const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;days.unshift({key:k,date:new Date(d)});d.setDate(d.getDate()-1)}
+  let totalDone=0,totalPossible=0,activeDays=0,maxStreak=0,cur=0;
+  const sortedDays=[...days].sort((a,b)=>a.date-b.date);
+  for(const day of sortedDays){const comps=data.done[day.key]||[];if(comps.length>0){activeDays++;cur++;if(cur>maxStreak)maxStreak=cur}else cur=0;totalDone+=comps.length;totalPossible+=allItems.length}
+  maxStreak=Math.max(maxStreak,data.streak||0);
+  document.getElementById('statStreak').textContent=maxStreak;
+  document.getElementById('statRate').textContent=totalPossible>0?Math.round(totalDone/totalPossible*100)+'%':'0%';
+  document.getElementById('statDays').textContent=activeDays;
+  const today=tk();let gridHTML='';
+  for(const day of days){const comps=data.done[day.key]||[];const n=comps.length;let cls='none';if(n===allItems.length)cls='full';else if(n>0)cls='partial';if(day.key===today)cls+=' today';gridHTML+=`<div class="day-dot ${cls}" onclick="showDayDetail('${day.key}')">${n>0?n:''}</div>`}
+  document.getElementById('calGrid').innerHTML=gridHTML;
+  document.getElementById('dayDetail').classList.remove('show');
+}
+function showDayDetail(dateKey){const comps=data.done[dateKey]||[];const notes=data.notes[dateKey]||{};let html=`<div class="dd-date">📅 ${dateKey} · 完成 ${comps.length}/${allItems.length}</div>`;for(const item of allItems){const done=comps.includes(item.id);const note=notes[item.id]||'';html+=`<div class="dd-item"><div class="dd-dot ${done?'done-d':'miss'}"></div>${item.title}${done?' ✅':''}</div>`;if(note)html+=`<div class="dd-note">💬 ${note.replace(/\n/g,'<br>')}</div>`}if(comps.length===0)html+='<div style="font-size:13px;color:var(--sub);margin-top:8px">这一天还没有打卡记录 😴</div>';document.getElementById('dayDetail').innerHTML=html;document.getElementById('dayDetail').classList.add('show')}
+
+// ═══════════ TOAST / RESET ═══════════
+let _tt;function toast(m){const el=document.getElementById('toast');el.textContent=m;el.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),2500)}
+function resetToday(){if(!confirm('确定要清除今天的打卡记录吗？'))return;const t=tk();if(data.done[t])delete data.done[t];updateStreak();save();renderAll()}
+
+// ═══════════ INIT ═══════════
+updateStreak();save();renderAll();
+</script>
+</body>
+</html>

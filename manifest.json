@@ -1,0 +1,16 @@
+{
+  "name": "自我成长 · 每日打卡",
+  "short_name": "自我成长",
+  "description": "亲密关系与自信心每日打卡",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#FFF8F0",
+  "theme_color": "#FFF8F0",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
