@@ -1,6 +1,7 @@
 {
-  "name": "自我成长 · 每日打卡",
-  "short_name": "自我成长",
+  "name": "今天只做一件事",
+  "short_name": "今天只做一件事",
+  "description": "亲密关系与自信心每日打卡",
   "description": "亲密关系与自信心每日打卡",
   "start_url": "./",
   "display": "standalone",
